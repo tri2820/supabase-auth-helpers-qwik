@@ -1,30 +1,27 @@
-import { qwikVite } from "@builder.io/qwik/optimizer";
 import { defineConfig } from "vite";
-import pkg from "./package.json";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
 
-export default defineConfig((config) => {
-  return {
-    build: {
-      minify: false,
-      target: "es2020",
-      outDir: "lib",
-      lib: {
-        entry: ["./src/index.ts"],
-        fileName: (format) => `index.qwik.${format === "es" ? "mjs" : "cjs"}`,
-      },
-      rollupOptions: {
-        external: [
-          "@builder.io/qwik",
-          "@builder.io/qwik-city",
-          "@builder.io/qwik/build",
-          "@supabase/auth-helpers-shared",
-        ],
-      },
+export default defineConfig({
+  build: {
+    outDir: "lib",
+    lib: {
+      formats: ["es", "cjs"],
+      entry: resolve(__dirname, "src/index.ts"),
     },
-    define: {
-      PACKAGE_NAME: JSON.stringify(pkg.name),
-      PACKAGE_VERSION: JSON.stringify(pkg.version),
+    rollupOptions: {
+      external: [
+        "@builder.io/qwik",
+        "@builder.io/qwik-city",
+        "@builder.io/qwik/build",
+        "@supabase/supabase-js",
+        "@supabase/auth-helpers-shared",
+      ],
     },
-    plugins: [qwikVite()],
-  };
-}) as any;
+  },
+  plugins: [
+    dts({
+      include: ["src"],
+    }),
+  ],
+});
